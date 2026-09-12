@@ -5,6 +5,8 @@ on:
     branches:
       - main
   pull_request:
+    branches:
+      - main
 
 jobs:
   compile:
@@ -19,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: purcell/setup-emacs
+      - uses: purcell/setup-emacs@v8
         with:
           version: ${{ matrix.emacs }}
 
