@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: purcell/setup-emacs@v8
+      - uses: purcell/setup-emacs@master
         with:
           version: ${{ matrix.emacs }}
 
