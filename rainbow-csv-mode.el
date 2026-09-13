@@ -352,9 +352,11 @@ separator.
 
 A leading zero-width spacer anchors the text to column 0 of the
 window's text area via `:align-to', which by definition excludes
-fringes, margins, and line-number display — rather than trying to
-reproduce that width by hand (which previously made things worse),
-this asks Emacs to compute the correct starting position directly."
+fringes, margins, and line-number display. On top of that, the
+string is trimmed by the window's current horizontal scroll
+(`window-hscroll'), since `:align-to' only fixes the *starting*
+position — it does not, on its own, make the header track sideways
+scrolling the way the buffer's body does."
   (let ((anchor (propertize " " 'display '(space :align-to 0))))
     (save-excursion
       (goto-char (point-min))
@@ -388,7 +390,16 @@ this asks Emacs to compute the correct starting position directly."
                    (if (> nfaces 0) (nth (mod idx nfaces) faces) 'default)
                    result))
                 (setq pos (1+ len))))
-            (concat anchor result)))))))
+            ;; Drop as many leading characters as the window is scrolled,
+            ;; so the header shifts left in step with the body. This is a
+            ;; column-count approximation (one character per column), so
+            ;; a header row containing tabs or wide characters may drift
+            ;; slightly out of sync.
+            (let* ((hscroll (window-hscroll))
+                   (visible (if (> hscroll 0)
+                                (substring result (min hscroll (length result)))
+                              result)))
+              (concat anchor visible))))))))
 
 (defun rainbow-csv--refresh-header-line (&rest _ignore)
   "Show or hide the sticky header-line bar based on scroll position.
